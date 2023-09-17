@@ -1,67 +1,73 @@
-// importing the inquirer
 const inquirer = require('inquirer');
-
-// importing file system 
 const fs = require('fs');
+const { Circle, Triangle, Square } = require('./lib/shapes.js');
 
-// importing shapes classes
-const {Circle,Triangle, Square} = require('./library/shapes');
-
-function promptUser(){
-    // prompting the user for imput
+function promptUser() {
     return inquirer
-        .prompt([
-            {
-                type: 'list',
-                name: 'shape',
-                message: 'Please choose a shape for your logo:',
-                choices: ['Circle','Triangle','Square'],
-            },
-            {
-                type: 'input',
-                name: 'shapeColor',
-                message: 'what color would you like the SHAPE to be? (enter a color keyword OR a hexadecimal number) ',
-            },
-            {
-                type: 'input',
-                name: 'text',
-                message: 'Enter the text for your logo (you can use up to 3 characters) ',
-            },
-            {
-                type: 'input',
-                name: 'textColor',
-                message: 'what color would you like the TEXT to be? (enter a color keyword OR a hexadecimal number) ',
-            },
-        ]).then((answers) => {
-            // calling function that will create the svg file
-            writeSvgFile(answers);
-        });
+    .prompt([
+      {
+        type: 'list',
+        name: 'shape',
+        message: 'what shape do you like for your logo:',
+        choices: ['Circle', 'Triangle', 'Square'],
+      },
+      
+      {
+        type: 'input',
+        name: 'shapeColor',
+        message: 'What color would you like it for your shape? (Enter a color keyword OR a hexadecimal number) ',
+      },
+     
+     
+      {
+        type: 'input',
+        name: 'text',
+        message: 'Please, Enter the text for your logo here  ( 3 characters) ',
+      },
+     
+     
+      {
+        type: 'input',
+        name: 'textColor',
+        message: 'What color would you like it for your TEXT ? (Enter a color keyword OR a hexadecimal number) ',
+      },
+    ])
+        .then((answers) => {
+         writeSvgFile(answers);
+    });
 }
 
-function writeSvgFile(answers){
-    // creates the shape according to which one the user chose
-    var shape;
-    if(answers.shape == 'Circle'){
-         shape = new Circle();
-    }else if(answers.shape == 'Triangle'){
-         shape = new Triangle();
-    }else{
-         shape = new Square();
-    }
-    // sets the shape's color to the color that the user chose
-    shape.setColor(answers.shapeColor);
-    // a string of code to put into the svg file 
-    var svgCode = `<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height="200" width="300">
-    ${shape.render()}
-    <text x="150" y="125" font-size="55" text-anchor="middle" fill="${answers.textColor}">${answers.text}</text>
-    </svg>
-    `;
-    // to create the logo.svg file
-    fs.writeFile('logo.svg', svgCode, (err) =>
-       err ? console.log(err) : console.log('Generated logo.svg')
-    );
+function writeSvgFile(answers) {
+  let shape;
+  let textX = 150;
+  
+    if (answers.shape === 'Circle') {
+    shape = new Circle(50); 
+    textX = 25 + shape.radius;
+     
+  } else if (answers.shape === 'Triangle') {
+    shape = new Triangle(100, 100);
+    
+    textX = 150;
+    
+  } else {
+    shape = new Square(100); 
+    textX = 150 - shape.sideLength / 2;
+  }
+
+  shape.setColor(answers.shapeColor);
+
+  const svgCode = `<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height="200" width="300">
+   
+  ${shape.render()}
+            <text x="150" y="125" font-size="55" text-anchor="middle" fill="${answers.textColor}">${answers.text}</text>
+  </svg>`;
+
+  fs.writeFile('logo.svg', svgCode, (err) =>
+   
+  
+  err ? console.error(' check Error SVG file:', err) : console.log('Generated logo.svg')
+  );
 }
 
-
-// function to initialize the application
 promptUser();
